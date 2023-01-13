@@ -14,8 +14,8 @@ public class Storage {
 
     public Integer get(Integer key) {
 
-        System.out.println("GET [key=" + key + "]");
-
+        System.out.println("getting: " + key);
+        System.out.println("returning: " + data.get(key));
         return data.get(key);
 
     }

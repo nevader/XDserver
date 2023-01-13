@@ -2,7 +2,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -21,11 +20,10 @@ public class Communication {
             catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
-    public void listen(Storage storage) throws Exception {
+    public void listen(Storage storage, Topology topology) throws Exception {
 
         while (true) {
 
@@ -39,10 +37,19 @@ public class Communication {
                         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 
-                        Request<?> request = (Request<?>)in.readObject();
-                        Object result = request.handle(storage);
+                        Message message = (Message)in.readObject();
 
-                        out.writeObject(result);
+                        if(message.getType() == Message.MessageType.REQUEST) {
+                            Request<?> request = (Request<?>) message;
+                            Object result = request.handle(storage);
+                            out.writeObject(result);
+
+                        }else if(message.getType() == Message.MessageType.BROADCAST){
+                            Broadcast<?> broadcast = (Broadcast<?>) message;
+                            broadcast.handle(topology);
+                        }
+
+
                     }
                     catch (EOFException e1) {
                         break;
@@ -74,5 +81,35 @@ public class Communication {
         in.close();
 
         return x;
+    }
+
+    public <R> void broadcastTopology(Broadcast<R> request, Topology topology) throws IOException {
+
+        //sprawdza kazdego noda i daje mu znac ze sie z nim polaczyl
+        var listOfNodes = topology.getTopology().get(serverSocket.getLocalPort());
+
+        for (int i = 0; i < listOfNodes.size(); i++) {
+
+            var dstAd = listOfNodes.get(i).getAddress();
+            var dstPort = listOfNodes.get(i).getPort();
+
+            Socket socket = null;
+            try {
+                socket = new Socket(dstAd, dstPort);
+            } catch (IOException e) {
+                throw new RuntimeException("Cannot connect to:" + dstPort);
+            }
+            System.out.println("Connected with");
+
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+
+            out.writeObject(request);
+
+            socket.close();
+            out.close();
+            in.close();
+
+        }
     }
 }

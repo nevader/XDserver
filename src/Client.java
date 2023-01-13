@@ -1,5 +1,3 @@
-import java.net.InetSocketAddress;
-
 public class Client {
     private Communication comm = new Communication();
 
@@ -16,7 +14,10 @@ public class Client {
 
     public static void main(String[] args) throws Exception {
 
-        String gateway = null;
+        Client client = new Client();
+        System.out.println(client.get(2, "localhost", 9000));
+
+/*        String gateway = null;
         int port = 0;
         String identifier = null;
         String command = null;
@@ -42,9 +43,10 @@ public class Client {
         }
 
         Client client = new Client();
-        client.start();
-        client.put(1, 1, gateway, port);
+        client.get(2, gateway, port);
 
-        System.out.println("Read from the server: " + client.get(1, gateway, port));
+        System.out.println("Read from the server: " + client.get(1, gateway, port));*/
     }
+
+
 }

@@ -7,6 +7,7 @@ public class GetRequest implements Request<Integer> {
     }
     @Override
     public Integer handle(Storage storage) {
+
         return storage.get(key);
     }
 }
