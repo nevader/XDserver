@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DatabaseNode {
 
@@ -16,7 +18,7 @@ public class DatabaseNode {
 
         int serverPort = 0;
         String record = "";
-        ArrayList<Topology.Node> nodesToConnect = new ArrayList<>();
+        HashSet<Topology.Node> nodesToConnect = new HashSet<>();
 
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {

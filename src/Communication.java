@@ -4,6 +4,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
 
 public class Communication {
 
@@ -40,9 +41,19 @@ public class Communication {
                         Message message = (Message)in.readObject();
 
                         if(message.getType() == Message.MessageType.REQUEST) {
-                            Request<?> request = (Request<?>) message;
+                            ClientRequest<?> request = (ClientRequest<?>) message;
                             Object result = request.handle(storage);
-                            out.writeObject(result);
+                            if (result == null) {
+                                broadcastTopology(new NodeVisitedAdd(serverSocket.getLocalPort(), "localhost"),
+                                        topology);
+                                Integer value = askForValue(topology, request);
+                                out.writeObject(value);
+                                broadcastTopology(new ClearVisitedNodes(), topology);
+                            } else {
+                                out.writeObject(result);
+                            }
+
+
 
                         }else if(message.getType() == Message.MessageType.BROADCAST){
                             Broadcast<?> broadcast = (Broadcast<?>) message;
@@ -63,9 +74,20 @@ public class Communication {
             }).start();
         }
     }
+    public <R> R askForValue(Topology topology, ClientRequest<?> request) throws Exception {
+
+        var listOfNodes = topology.getTopology().get(serverSocket.getLocalPort());
+
+        for (Topology.Node current : listOfNodes) {
+            if (!topology.getVisitedNodes().contains(current)) {
+                return (R)execute(request, "localhost", current.getPort());
+            }
+        }
+        return null;
+    }
 
     // Used by Clients
-    public <R> R execute(Request<R> request, String gateway, int port) throws Exception {
+    public <R> R execute(ClientRequest<R> request, String gateway, int port) throws Exception {
         Socket socket = new Socket(gateway, port);
         System.out.println("Connected with");
 
@@ -88,12 +110,10 @@ public class Communication {
         //sprawdza kazdego noda i daje mu znac ze sie z nim polaczyl
         var listOfNodes = topology.getTopology().get(serverSocket.getLocalPort());
 
-        for (int i = 0; i < listOfNodes.size(); i++) {
-
-            var dstAd = listOfNodes.get(i).getAddress();
-            var dstPort = listOfNodes.get(i).getPort();
-
-            Socket socket = null;
+        for (Topology.Node current : listOfNodes) {
+            var dstAd = current.getAddress();
+            var dstPort = current.getPort();
+            Socket socket;
             try {
                 socket = new Socket(dstAd, dstPort);
             } catch (IOException e) {
@@ -109,7 +129,7 @@ public class Communication {
             socket.close();
             out.close();
             in.close();
-
         }
+
     }
 }

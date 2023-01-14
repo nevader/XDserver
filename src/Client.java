@@ -5,17 +5,17 @@ public class Client {
     }
 
     public void put(Integer key, Integer value, String gateway, int port) throws Exception {
-        comm.execute(new PutRequest(key, value), gateway, port);
+        comm.execute(new PutClientRequest(key, value), gateway, port);
     }
 
     public Integer get(Integer key, String gateway, int port) throws Exception {
-        return comm.execute(new GetRequest(key), gateway, port);
+        return comm.execute(new GetClientRequest(key), gateway, port);
     }
 
     public static void main(String[] args) throws Exception {
 
         Client client = new Client();
-        System.out.println(client.get(2, "localhost", 9000));
+        System.out.println(client.get(6, "localhost", 9000));
 
 /*        String gateway = null;
         int port = 0;

@@ -5,25 +5,35 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Topology {
 
     private int hostPort;
-    private final Map<Integer, ArrayList<Node>> topology = new ConcurrentHashMap<>();
+    private final Map<Integer, HashSet<Node>> topology = new ConcurrentHashMap<>();
+    private final HashSet<Node> visitedNodes = new HashSet<>();
 
 
-    public void join(ArrayList<Node> connectedNodes) {
+    public void join(HashSet<Node> connectedNodes) {
             topology.put(hostPort, connectedNodes);
-
+    }
+    public void addVisitedNode(int host, String address) {
+        visitedNodes.add(new Node(address, host));
+    }
+    public void clearVisitedNodes() {
+        visitedNodes.clear();
     }
 
     public void addNode(Node nodeToAdd) {
 
         System.out.println("Added new node to network.");
-        ArrayList<Node> nodeList = topology.get(hostPort);
+        Set<Node> nodeList = topology.get(hostPort);
         nodeList.add(nodeToAdd);
 
 
         System.out.println("Current nodes:");
-        for (int i = 0; i < nodeList.size(); i++) {
-            System.out.println(nodeList.get(i).port);
+
+        for (Node current : nodeList) {
+            System.out.println(current.getPort());
         }
+    }
+    public HashSet<Node> getVisitedNodes() {
+        return visitedNodes;
     }
 
     public void setHostPort(int hostPort) {
@@ -34,7 +44,7 @@ public class Topology {
         return hostPort;
     }
 
-    public Map<Integer, ArrayList<Node>> getTopology() {
+    public Map<Integer, HashSet<Node>> getTopology() {
         return topology;
     }
 
@@ -54,6 +64,24 @@ public class Topology {
 
         public String getAddress() {
             return address;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Node node = (Node) o;
+
+            if (port != node.port) return false;
+            return Objects.equals(address, node.address);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = port;
+            result = 31 * result + (address != null ? address.hashCode() : 0);
+            return result;
         }
     }
 }

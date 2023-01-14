@@ -1,9 +1,9 @@
-public class PutRequest implements Request<Void> {
+public class PutClientRequest implements ClientRequest<Void> {
 
     private Integer key;
     private Integer value;
 
-    public PutRequest(Integer key, Integer value) {
+    public PutClientRequest(Integer key, Integer value) {
         this.key = key;
         this.value = value;
     }

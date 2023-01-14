@@ -1,7 +1,7 @@
-public class GetRequest implements Request<Integer> {
+public class GetClientRequest implements ClientRequest<Integer> {
     private Integer key;
 
-    public GetRequest(Integer key) {
+    public GetClientRequest(Integer key) {
         this.key = key;
 
     }
