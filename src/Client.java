@@ -52,7 +52,7 @@ public class Client {
         }
 
         Client client = new Client();
-        System.out.println(client.getMin("localhost", 9000));
+        System.out.println(client.setValue(7, 5, "localhost", 9000));
 
 
 

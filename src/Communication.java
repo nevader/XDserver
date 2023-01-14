@@ -37,7 +37,7 @@ public class Communication implements Serializable {
 
                         if (message.getType() == Message.MessageType.REQUEST) {
 
-                            System.out.println("ACCEPTED_CLIENT_REQUEST");
+                            System.out.println("\nACCEPTED_CLIENT_REQUEST");
                             ClientRequest<?> request = (ClientRequest<?>) message;
                             Object result = request.handle(storage);
 
@@ -45,8 +45,7 @@ public class Communication implements Serializable {
                                 broadcastTopology(new NodeVisitedAdd(new Topology.Node("localhost", serverSocket.getLocalPort())),
                                         topology);
                                 var value = askForValue(topology, request);
-                                System.out.println("\n\nRETURNING_REQUEST [value=" + value + "]");
-                                value = request.getLol();
+                                System.out.println("\nRETURNING_REQUEST [value=" + value + "]");
                                 out.writeObject(Objects.requireNonNullElse(value, "ERROR"));
                                 topology.clearVisitedNodes();
 
@@ -56,7 +55,7 @@ public class Communication implements Serializable {
 
                         } else if (message.getType() == Message.MessageType.BROADCAST) {
 
-                            System.out.println("ACCEPTED_BROADCAST_REQUEST");
+                            System.out.println("\nACCEPTED_BROADCAST_REQUEST");
                             Broadcast<?> broadcast = (Broadcast<?>) message;
                             broadcast.handle(topology);
 
@@ -90,7 +89,7 @@ public class Communication implements Serializable {
     // Used by Clients
     public <R> R execute(ClientRequest<R> request, String gateway, int port) throws Exception {
         Socket socket = new Socket(gateway, port);
-        System.out.println("CONNECTED_WITH [host=localhost, port=" + port + "]");
+        System.out.println("\nCONNECTED_WITH [host=localhost, port=" + port + "]");
 
         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
@@ -117,9 +116,9 @@ public class Communication implements Serializable {
             Socket socket;
             try {
                 socket = new Socket(dstAd, dstPort);
-                System.out.println(request.getClass() + "SENDING_BROADCAST to [host=localhost, port=" + dstPort + "]");
+                System.out.println(request.getClass() + "\nSENDING_BROADCAST to [host=localhost, port=" + dstPort + "]");
             } catch (IOException e) {
-                throw new RuntimeException("Cannot connect to:" + dstPort);
+                throw new RuntimeException("\nCannot connect to:" + dstPort);
             }
 
 
