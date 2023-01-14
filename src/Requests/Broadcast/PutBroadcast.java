@@ -12,6 +12,15 @@ public class PutBroadcast implements Broadcast<Void>{
     @Override
     public Void handle(Topology topology) {
         topology.addNode(nodeToAdd);
+        System.out.println("ADDED_NEW_NODE [host=localhost, port=" + nodeToAdd.getPort() + "]");
+        topology.listCurrentNodes();
         return null;
+    }
+
+
+
+    @Override
+    public MessageType getType() {
+        return Broadcast.super.getType();
     }
 }

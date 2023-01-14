@@ -1,24 +1,20 @@
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashSet;
+import java.util.*;
 
-public class Communication {
+public class Communication implements Serializable {
 
     private ServerSocket serverSocket;
 
-    public void start(int port) {
+    public void start(int port, Storage storage) {
         while (true) {
             try {
                 serverSocket = new ServerSocket(port);
-
-                System.out.println("Server started.  " + port + " port.");
+                storage.setPort(port);
+                System.out.println("SERVER_STARTED [host=localhost, port=" + serverSocket.getLocalPort() + "]");
                 break;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -28,9 +24,8 @@ public class Communication {
 
         while (true) {
 
-            System.out.println("server lisening");
             Socket socket = serverSocket.accept();
-            System.out.println("Accepted client:");
+            System.out.println("ACCEPTED_CONNECTION");
 
             new Thread(() -> {
                 while (true) {
@@ -38,34 +33,38 @@ public class Communication {
                         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 
-                        Message message = (Message)in.readObject();
+                        Message message = (Message) in.readObject();
 
-                        if(message.getType() == Message.MessageType.REQUEST) {
+                        if (message.getType() == Message.MessageType.REQUEST) {
+
+                            System.out.println("ACCEPTED_CLIENT_REQUEST");
                             ClientRequest<?> request = (ClientRequest<?>) message;
                             Object result = request.handle(storage);
+
                             if (result == null) {
-                                broadcastTopology(new NodeVisitedAdd(serverSocket.getLocalPort(), "localhost"),
+                                broadcastTopology(new NodeVisitedAdd(new Topology.Node("localhost", serverSocket.getLocalPort())),
                                         topology);
-                                Integer value = askForValue(topology, request);
-                                out.writeObject(value);
-                                broadcastTopology(new ClearVisitedNodes(), topology);
+                                var value = askForValue(topology, request);
+                                System.out.println("\n\nRETURNING_REQUEST [value=" + value + "]");
+                                value = request.getLol();
+                                out.writeObject(Objects.requireNonNullElse(value, "ERROR"));
+                                topology.clearVisitedNodes();
+
                             } else {
                                 out.writeObject(result);
                             }
 
+                        } else if (message.getType() == Message.MessageType.BROADCAST) {
 
-
-                        }else if(message.getType() == Message.MessageType.BROADCAST){
+                            System.out.println("ACCEPTED_BROADCAST_REQUEST");
                             Broadcast<?> broadcast = (Broadcast<?>) message;
                             broadcast.handle(topology);
+
                         }
 
-
-                    }
-                    catch (EOFException e1) {
+                    } catch (EOFException e1) {
                         break;
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         break;
                     }
@@ -74,22 +73,24 @@ public class Communication {
             }).start();
         }
     }
+
     public <R> R askForValue(Topology topology, ClientRequest<?> request) throws Exception {
 
         var listOfNodes = topology.getTopology().get(serverSocket.getLocalPort());
 
         for (Topology.Node current : listOfNodes) {
             if (!topology.getVisitedNodes().contains(current)) {
-                return (R)execute(request, "localhost", current.getPort());
+                return (R) execute(request, "localhost", current.getPort());
             }
         }
         return null;
     }
 
+
     // Used by Clients
     public <R> R execute(ClientRequest<R> request, String gateway, int port) throws Exception {
         Socket socket = new Socket(gateway, port);
-        System.out.println("Connected with");
+        System.out.println("CONNECTED_WITH [host=localhost, port=" + port + "]");
 
         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
@@ -116,10 +117,11 @@ public class Communication {
             Socket socket;
             try {
                 socket = new Socket(dstAd, dstPort);
+                System.out.println(request.getClass() + "SENDING_BROADCAST to [host=localhost, port=" + dstPort + "]");
             } catch (IOException e) {
                 throw new RuntimeException("Cannot connect to:" + dstPort);
             }
-            System.out.println("Connected with");
+
 
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());

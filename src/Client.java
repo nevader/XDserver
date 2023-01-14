@@ -4,20 +4,29 @@ public class Client {
     public void start() throws Exception {
     }
 
-    public void put(Integer key, Integer value, String gateway, int port) throws Exception {
-        comm.execute(new PutClientRequest(key, value), gateway, port);
+    public String setValue(Integer key, Integer value, String gateway, int port) throws Exception {
+        return comm.execute(new setValue(key, value), gateway, port);
     }
 
-    public Integer get(Integer key, String gateway, int port) throws Exception {
-        return comm.execute(new GetClientRequest(key), gateway, port);
+    public String getValue(Integer key, String gateway, int port) throws Exception {
+        return comm.execute(new getValue(key), gateway, port);
+    }
+
+    public String findKey(Integer key, String gateway, int port) throws Exception {
+        return comm.execute(new findKey(key), gateway, port);
+    }
+
+    public String newRecord(Integer key, Integer value, String gateway, int port) throws Exception {
+        return comm.execute(new newRecord(key, value), gateway, port);
+    }
+
+    public String getMin(String gateway, int port) throws Exception {
+          return comm.execute(new getMin(), gateway, port);
     }
 
     public static void main(String[] args) throws Exception {
 
-        Client client = new Client();
-        System.out.println(client.get(6, "localhost", 9000));
-
-/*        String gateway = null;
+        String gateway = null;
         int port = 0;
         String identifier = null;
         String command = null;
@@ -43,9 +52,10 @@ public class Client {
         }
 
         Client client = new Client();
-        client.get(2, gateway, port);
+        System.out.println(client.getMin("localhost", 9000));
 
-        System.out.println("Read from the server: " + client.get(1, gateway, port));*/
+
+
     }
 
 

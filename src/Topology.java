@@ -5,33 +5,52 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Topology {
 
     private int hostPort;
+    private String minValue;
     private final Map<Integer, HashSet<Node>> topology = new ConcurrentHashMap<>();
     private final HashSet<Node> visitedNodes = new HashSet<>();
 
+    public void setMinValue(String minValue) {
+        System.out.println("Setted min value to " + minValue);
+        this.minValue = minValue;
+    }
+
+    public String getMinValue() {
+        return minValue;
+    }
 
     public void join(HashSet<Node> connectedNodes) {
             topology.put(hostPort, connectedNodes);
     }
-    public void addVisitedNode(int host, String address) {
-        visitedNodes.add(new Node(address, host));
+    public void addVisitedNode(Node nodeToAdd) {
+        visitedNodes.add(nodeToAdd);
     }
     public void clearVisitedNodes() {
         visitedNodes.clear();
+        System.out.println("CLEARED_LIST_OF_VISITED_NODES.]");
+        listVisitedNodes();
+
     }
 
     public void addNode(Node nodeToAdd) {
 
-        System.out.println("Added new node to network.");
         Set<Node> nodeList = topology.get(hostPort);
         nodeList.add(nodeToAdd);
+    }
 
-
-        System.out.println("Current nodes:");
-
+    public void listCurrentNodes() {
+        Set<Node> nodeList = topology.get(hostPort);
+        System.out.println("CONNECTED_NODES:");
         for (Node current : nodeList) {
-            System.out.println(current.getPort());
+            System.out.println("- [host=localhost, port=" + current.getPort() + "]");
         }
     }
+    public void listVisitedNodes() {
+        System.out.println("VISITED_NODES:");
+        for (Node current : visitedNodes) {
+            System.out.println("- [host=localhost, port=" + current.getPort() + "]");
+        }
+    }
+
     public HashSet<Node> getVisitedNodes() {
         return visitedNodes;
     }

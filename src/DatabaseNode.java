@@ -9,7 +9,7 @@ public class DatabaseNode {
     private final Topology topology = new Topology();
 
     public void start(int serverPort) throws Exception {
-        comm.start(serverPort);
+        comm.start(serverPort, storage);
         comm.broadcastTopology(new PutBroadcast(new Topology.Node("localhost", serverPort)), topology);
         comm.listen(storage, topology);
     }
@@ -36,8 +36,6 @@ public class DatabaseNode {
                     break;
             }
         }
-
-        System.out.println(serverPort);
 
         DatabaseNode databaseNode = new DatabaseNode();
 
