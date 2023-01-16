@@ -1,4 +1,5 @@
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class newRecord implements ClientRequest<String>{
 
@@ -17,14 +18,10 @@ public class newRecord implements ClientRequest<String>{
     }
 
     @Override
-    public String handle(Storage storage, Socket socket) {
+    public String handle(Storage storage, ArrayList<Integer> arrayList) {
         return null;
     }
 
-    @Override
-    public String getLol() {
-        return null;
-    }
 
     @Override
     public MessageType getType() {

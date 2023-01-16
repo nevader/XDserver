@@ -25,9 +25,9 @@ public class Topology {
         visitedNodes.add(nodeToAdd);
     }
     public void clearVisitedNodes() {
-        visitedNodes.clear();
         System.out.println("CLEARED_LIST_OF_VISITED_NODES.]");
-        listVisitedNodes();
+        visitedNodes.clear();
+
 
     }
 

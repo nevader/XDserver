@@ -59,6 +59,30 @@ public class Communication implements Serializable {
                             Broadcast<?> broadcast = (Broadcast<?>) message;
                             broadcast.handle(topology);
 
+                        } else if (message.getType() == Message.MessageType.GET_MIN_MAX) {
+
+                            System.out.println("\nACCEPTED_GETMIN");
+                            ArrayList<Integer> values = new ArrayList<>();
+                            System.out.println("creating array");
+
+                            values.add(storage.getStoredValue());
+                            System.out.println("adding to array:" + storage.getStoredValue());
+
+                            ClientRequest<?> request = (ClientRequest<?>) message;
+                            Object result = request.handle(storage, values);
+
+                            System.out.println("current result:" + result.toString());
+                            broadcastTopology(new NodeVisitedAdd(new Topology.Node("localhost", serverSocket.getLocalPort())),
+                                    topology);
+                            var value = askForValue(topology, request);
+                            if (value == null) {
+                                topology.clearVisitedNodes();
+                                out.writeObject(result);
+                            }
+
+                            System.out.println("\nRETURNING_REQUEST [value=" + value + "]");
+                            topology.clearVisitedNodes();
+                            out.writeObject(Objects.requireNonNullElse(value, "ERROR"));
                         }
 
                     } catch (EOFException e1) {
@@ -84,6 +108,18 @@ public class Communication implements Serializable {
         }
         return null;
     }
+    public <R> R askForMin(Topology topology, ClientRequest<?> request, ArrayList<Integer> arrayList) throws Exception {
+
+        var listOfNodes = topology.getTopology().get(serverSocket.getLocalPort());
+
+        for (Topology.Node current : listOfNodes) {
+            if (!topology.getVisitedNodes().contains(current)) {
+                return (R) execute(request, "localhost", current.getPort());
+            }
+        }
+        return null;
+    }
+
 
 
     // Used by Clients

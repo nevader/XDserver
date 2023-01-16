@@ -1,4 +1,5 @@
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class findKey implements ClientRequest <String>{
 
@@ -14,12 +15,7 @@ public class findKey implements ClientRequest <String>{
     }
 
     @Override
-    public String handle(Storage storage, Socket socket) {
-        return null;
-    }
-
-    @Override
-    public String getLol() {
+    public String handle(Storage storage, ArrayList<Integer> arrayList) {
         return null;
     }
 
