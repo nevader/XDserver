@@ -14,8 +14,9 @@ public class findKey implements ClientRequest <String>{
         return storage.findKey(key);
     }
 
+
     @Override
-    public String handle(Storage storage, ArrayList<Integer> arrayList) {
+    public String handle(Integer value) {
         return null;
     }
 

@@ -6,8 +6,7 @@ public interface ClientRequest<R> extends Message {
 
 
     R handle(Storage storage);
-    R handle(Storage storage, ArrayList<Integer> arrayList);
-
+    R handle(Integer value);
 
     @Override
     default MessageType getType() {

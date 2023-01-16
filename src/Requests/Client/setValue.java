@@ -16,8 +16,9 @@ public class setValue implements ClientRequest <String>{
         return storage.replaceValue(key, value);
     }
 
+
     @Override
-    public String handle(Storage storage, ArrayList<Integer> arrayList) {
+    public String handle(Integer value) {
         return null;
     }
 

@@ -14,8 +14,10 @@ public class getValue implements ClientRequest<String> {
         return storage.getValueAsString(key);
     }
 
+
+
     @Override
-    public String handle(Storage storage, ArrayList<Integer> arrayList) {
+    public String handle(Integer value) {
         return null;
     }
 

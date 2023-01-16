@@ -1,5 +1,3 @@
-import java.util.*;
-
 public class DatabaseClient {
     private Communication comm = new Communication();
 
@@ -7,10 +5,10 @@ public class DatabaseClient {
 
         switch (command) {
             case "get-max":
-                getMinMax(gateway, port, "max");
+                getMax(gateway, port);
                 break;
             case "get-min":
-                getMinMax(gateway, port, "min");
+                getMin(gateway, port);
                 break;
             case "set-value":
                 setValue(key, value, gateway, port);
@@ -49,19 +47,15 @@ public class DatabaseClient {
         System.out.println(result);
     }
 
-    public void getMinMax(String gateway, int port, String maxMin) throws Exception {
-        ArrayList<Integer> lista = new ArrayList<>();
-        lista = comm.execute(new getMinMax(lista), gateway, port);
-
-        switch (maxMin) {
-            case "max":
-                System.out.println(Collections.max(lista));
-                break;
-            case "min":
-                System.out.println(Collections.min(lista));
-                break;
-        }
+    public void getMin(String gateway, int port) throws Exception {
+        var result = comm.execute(new getMin(), gateway, port);
+        System.out.println(result);
     }
+    public void getMax(String gateway, int port) throws Exception {
+        var result = comm.execute(new getMax(), gateway, port);
+        System.out.println(result);
+    }
+
 
     public static void main(String[] args) throws Exception {
 
@@ -92,6 +86,4 @@ public class DatabaseClient {
 
         new DatabaseClient().start(operation, address, Integer.parseInt(port), Integer.parseInt(key), Integer.parseInt(value));
     }
-
-
 }

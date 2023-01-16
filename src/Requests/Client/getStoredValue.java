@@ -8,8 +8,9 @@ public class getStoredValue implements ClientRequest<Integer>{
         return storage.getStoredValue();
     }
 
+
     @Override
-    public Integer handle(Storage storage, ArrayList<Integer> arrayList) {
+    public Integer handle(Integer value) {
         return null;
     }
 

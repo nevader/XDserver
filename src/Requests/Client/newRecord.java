@@ -18,7 +18,7 @@ public class newRecord implements ClientRequest<String>{
     }
 
     @Override
-    public String handle(Storage storage, ArrayList<Integer> arrayList) {
+    public String handle(Integer value) {
         return null;
     }
 

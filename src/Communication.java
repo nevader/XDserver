@@ -62,14 +62,10 @@ public class Communication implements Serializable {
                         } else if (message.getType() == Message.MessageType.GET_MIN_MAX) {
 
                             System.out.println("\nACCEPTED_GETMIN");
-                            ArrayList<Integer> values = new ArrayList<>();
-                            System.out.println("creating array");
-
-                            values.add(storage.getStoredValue());
-                            System.out.println("adding to array:" + storage.getStoredValue());
+                            Integer values = storage.getStoredValue();
 
                             ClientRequest<?> request = (ClientRequest<?>) message;
-                            Object result = request.handle(storage, values);
+                            Object result = request.handle(values);
 
                             System.out.println("current result:" + result.toString());
                             broadcastTopology(new NodeVisitedAdd(new Topology.Node("localhost", serverSocket.getLocalPort())),
@@ -85,10 +81,7 @@ public class Communication implements Serializable {
                             out.writeObject(Objects.requireNonNullElse(value, "ERROR"));
                         }
 
-                    } catch (EOFException e1) {
-                        break;
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (Exception e1) {
                         break;
                     }
 
