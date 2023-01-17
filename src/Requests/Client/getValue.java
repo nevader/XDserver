@@ -26,4 +26,9 @@ public class getValue implements ClientRequest<String> {
     public MessageType getType() {
         return ClientRequest.super.getType();
     }
+
+    @Override
+    public String getCommand() {
+        return "get-value";
+    }
 }

@@ -27,4 +27,9 @@ public class newRecord implements ClientRequest<String>{
     public MessageType getType() {
         return ClientRequest.super.getType();
     }
+
+    @Override
+    public String getCommand() {
+        return "new-record";
+    }
 }

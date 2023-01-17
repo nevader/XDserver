@@ -12,7 +12,7 @@ public class Communication implements Serializable {
             try {
                 serverSocket = new ServerSocket(port);
                 storage.setPort(port);
-                System.out.println("SERVER_STARTED [host=localhost, port=" + serverSocket.getLocalPort() + "]");
+                System.out.println("* SERVER STARTED AT: [host=localhost, port=" + serverSocket.getLocalPort() + "] *");
                 break;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -24,12 +24,14 @@ public class Communication implements Serializable {
 
         while (true) {
 
+            System.out.println("* LISTENING FOR CONNECTIONS... *");
             Socket socket = serverSocket.accept();
-            System.out.println("ACCEPTED_CONNECTION");
+
 
             new Thread(() -> {
                 while (true) {
                     try {
+
                         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 
@@ -37,7 +39,8 @@ public class Communication implements Serializable {
 
                         if (message.getType() == Message.MessageType.REQUEST) {
 
-                            System.out.println("\nACCEPTED_CLIENT_REQUEST");
+                            System.out.println("* ACCEPTED CLIENT REQUEST [command=" + message.getCommand() +"] *");
+
                             ClientRequest<?> request = (ClientRequest<?>) message;
                             Object result = request.handle(storage);
 
@@ -45,7 +48,8 @@ public class Communication implements Serializable {
                                 broadcastTopology(new NodeVisitedAdd(new Topology.Node("localhost", serverSocket.getLocalPort())),
                                         topology);
                                 var value = askForValue(topology, request);
-                                System.out.println("\nRETURNING_REQUEST [value=" + value + "]");
+
+                                System.out.println("- returning request to the client: [value=" + result + "]");
                                 out.writeObject(Objects.requireNonNullElse(value, "ERROR"));
                                 topology.clearVisitedNodes();
 
@@ -55,30 +59,47 @@ public class Communication implements Serializable {
 
                         } else if (message.getType() == Message.MessageType.BROADCAST) {
 
-                            System.out.println("\nACCEPTED_BROADCAST_REQUEST");
+                            System.out.println("* ACCEPTED BROADCAST REQUEST: [command=" + message.getCommand() +"] *");
                             Broadcast<?> broadcast = (Broadcast<?>) message;
                             broadcast.handle(topology);
 
                         } else if (message.getType() == Message.MessageType.GET_MIN_MAX) {
 
-                            System.out.println("\nACCEPTED_GETMIN");
+                            System.out.println("* ACCEPTED CLIENT REQUEST: [command=" + message.getCommand() +"] *");
                             Integer values = storage.getStoredValue();
 
                             ClientRequest<?> request = (ClientRequest<?>) message;
                             Object result = request.handle(values);
 
-                            System.out.println("current result:" + result.toString());
                             broadcastTopology(new NodeVisitedAdd(new Topology.Node("localhost", serverSocket.getLocalPort())),
                                     topology);
                             var value = askForValue(topology, request);
                             if (value == null) {
                                 topology.clearVisitedNodes();
+                                System.out.println("- returning request to the client: [value=" + result + "]");
                                 out.writeObject(result);
                             }
 
-                            System.out.println("\nRETURNING_REQUEST [value=" + value + "]");
+                            System.out.println("- returning request to the client: [value=" + result + "]");
                             topology.clearVisitedNodes();
                             out.writeObject(Objects.requireNonNullElse(value, "ERROR"));
+
+                        } else if (message.getType() == Message.MessageType.DISCONNECT) {
+                            System.out.println("* ACCEPTED BROADCAST REQUEST: [command=" + message.getCommand() +"] *");
+                            Broadcast<?> broadcast = (Broadcast<?>) message;
+                            broadcast.handle(topology);
+
+                        } else if (message.getType() == Message.MessageType.TERMINATE) {
+
+                            System.out.println("* ACCEPTED CLIENT REQUEST: [command=" + message.getCommand() +"] *");
+                            ClientRequest<?> request = (ClientRequest<?>) message;
+                            var result = request.handle(storage);
+
+                            broadcastTopology(new removeDisconnectedNode(new Topology.Node("localhost", serverSocket.getLocalPort())), topology);
+                            out.writeObject(result);
+                            out.close();
+                            in.close();
+                            serverSocket.close();
                         }
 
                     } catch (Exception e1) {
@@ -101,24 +122,10 @@ public class Communication implements Serializable {
         }
         return null;
     }
-    public <R> R askForMin(Topology topology, ClientRequest<?> request, ArrayList<Integer> arrayList) throws Exception {
 
-        var listOfNodes = topology.getTopology().get(serverSocket.getLocalPort());
-
-        for (Topology.Node current : listOfNodes) {
-            if (!topology.getVisitedNodes().contains(current)) {
-                return (R) execute(request, "localhost", current.getPort());
-            }
-        }
-        return null;
-    }
-
-
-
-    // Used by Clients
     public <R> R execute(ClientRequest<R> request, String gateway, int port) throws Exception {
         Socket socket = new Socket(gateway, port);
-        System.out.println("\nCONNECTED_WITH [host=localhost, port=" + port + "]");
+        System.out.println("* CONNECTED WITH: [host=localhost, port=" + port + "] *");
 
         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
@@ -136,7 +143,6 @@ public class Communication implements Serializable {
 
     public <R> void broadcastTopology(Broadcast<R> request, Topology topology) throws IOException {
 
-        //sprawdza kazdego noda i daje mu znac ze sie z nim polaczyl
         var listOfNodes = topology.getTopology().get(serverSocket.getLocalPort());
 
         for (Topology.Node current : listOfNodes) {
@@ -145,11 +151,10 @@ public class Communication implements Serializable {
             Socket socket;
             try {
                 socket = new Socket(dstAd, dstPort);
-                System.out.println(request.getClass() + "\nSENDING_BROADCAST to [host=localhost, port=" + dstPort + "]");
+                System.out.println("- sending broadcast to: [host=localhost, port=" + dstPort + "], [command=" +request.getCommand() + "]");
             } catch (IOException e) {
                 throw new RuntimeException("\nCannot connect to:" + dstPort);
             }
-
 
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
@@ -160,6 +165,5 @@ public class Communication implements Serializable {
             out.close();
             in.close();
         }
-
     }
 }

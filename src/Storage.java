@@ -12,10 +12,6 @@ public class Storage {
         this.port = port;
     }
 
-    public Integer getPort() {
-        return port;
-    }
-
     public void put(Integer key, Integer value) {
         data.clear();
         System.out.println("PUT [key=" + key +", value=" + value + "]");
@@ -43,11 +39,6 @@ public class Storage {
         }
     }
 
-    public Integer getValueAsInteger() {
-        return data.get(currentKey);
-
-    }
-
     public String getValueAsString(Integer key) {
         System.out.println("GET [key=" + key +", return=" + data.get(key) + "]");
         if (data.get(key) == null) {
@@ -55,10 +46,6 @@ public class Storage {
         } else {
             return key + ":" + data.get(key).toString();
         }
-    }
-
-    public String getValueAsStr() {
-        return data.get(currentKey).toString();
     }
 
 }

@@ -22,11 +22,18 @@ public class DatabaseClient {
             case "new-record":
                 newRecord(key, value, gateway, port);
                 break;
+            case "terminate":
+                terminate(key, value, gateway, port);
+                break;
             default:
                 System.out.println("lol");
         }
     }
 
+    public void terminate(Integer key, Integer value, String gateway, int port) throws Exception {
+        var result = comm.execute(new terminate(), gateway, port);
+        System.out.println(result);
+    }
     public void setValue(Integer key, Integer value, String gateway, int port) throws Exception {
         var result = comm.execute(new setValue(key, value), gateway, port);
         System.out.println(result);

@@ -27,4 +27,9 @@ public class getMax implements ClientRequest<Integer> {
     public MessageType getType() {
         return MessageType.GET_MIN_MAX;
     }
+
+    @Override
+    public String getCommand() {
+        return "get-max";
+    }
 }

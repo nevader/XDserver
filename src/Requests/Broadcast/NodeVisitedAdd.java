@@ -10,7 +10,6 @@ public class NodeVisitedAdd implements Broadcast<Void> {
     @Override
     public Void handle(Topology topology) {
         topology.addVisitedNode(nodeToAdd);
-        System.out.println("ADDED_NEW_NODE_TO_VISITED_LIST [host=localhost, port=" + nodeToAdd.getPort() + "]");
         topology.listVisitedNodes();
         return null;
     }
@@ -20,6 +19,11 @@ public class NodeVisitedAdd implements Broadcast<Void> {
     @Override
     public MessageType getType() {
         return Broadcast.super.getType();
+    }
+
+    @Override
+    public String getCommand() {
+        return "add-visited-node";
     }
 
 }

@@ -25,4 +25,9 @@ public class findKey implements ClientRequest <String>{
     public MessageType getType() {
         return ClientRequest.super.getType();
     }
+
+    @Override
+    public String getCommand() {
+        return "find-key";
+    }
 }

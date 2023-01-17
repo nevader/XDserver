@@ -5,49 +5,43 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Topology {
 
     private int hostPort;
-    private String minValue;
     private final Map<Integer, HashSet<Node>> topology = new ConcurrentHashMap<>();
     private final HashSet<Node> visitedNodes = new HashSet<>();
-
-    public void setMinValue(String minValue) {
-        System.out.println("Setted min value to " + minValue);
-        this.minValue = minValue;
-    }
-
-    public String getMinValue() {
-        return minValue;
-    }
 
     public void join(HashSet<Node> connectedNodes) {
             topology.put(hostPort, connectedNodes);
     }
     public void addVisitedNode(Node nodeToAdd) {
+        System.out.println("- adding new entry to list of already visited nodes: [host=localhost, port=" + nodeToAdd.getPort() + "]");
         visitedNodes.add(nodeToAdd);
     }
     public void clearVisitedNodes() {
-        System.out.println("CLEARED_LIST_OF_VISITED_NODES.]");
+        System.out.println("- clearing list of already visited nodes");
         visitedNodes.clear();
-
-
     }
 
     public void addNode(Node nodeToAdd) {
-
+        System.out.println("- establishing new connection with: [host=localhost, port=" + nodeToAdd.getPort() + "]");
         Set<Node> nodeList = topology.get(hostPort);
         nodeList.add(nodeToAdd);
     }
 
+    public void removeNode(Node nodeToRemove) {
+        Set<Node> nodeList = topology.get(hostPort);
+        nodeList.remove(nodeToRemove);
+    }
+
     public void listCurrentNodes() {
         Set<Node> nodeList = topology.get(hostPort);
-        System.out.println("CONNECTED_NODES:");
+        System.out.println("- list of currently connected nodes...");
         for (Node current : nodeList) {
-            System.out.println("- [host=localhost, port=" + current.getPort() + "]");
+            System.out.println("[host=localhost, port=" + current.getPort() + "]");
         }
     }
     public void listVisitedNodes() {
-        System.out.println("VISITED_NODES:");
+        System.out.println("- list of visited nodes...");
         for (Node current : visitedNodes) {
-            System.out.println("- [host=localhost, port=" + current.getPort() + "]");
+            System.out.println("[host=localhost, port=" + current.getPort() + "]");
         }
     }
 
@@ -57,10 +51,6 @@ public class Topology {
 
     public void setHostPort(int hostPort) {
         this.hostPort = hostPort;
-    }
-
-    public int getHostPort() {
-        return hostPort;
     }
 
     public Map<Integer, HashSet<Node>> getTopology() {

@@ -1,6 +1,4 @@
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
 
 public class DatabaseNode {
 
@@ -10,7 +8,7 @@ public class DatabaseNode {
 
     public void start(int serverPort) throws Exception {
         comm.start(serverPort, storage);
-        comm.broadcastTopology(new PutBroadcast(new Topology.Node("localhost", serverPort)), topology);
+        comm.broadcastTopology(new addConnectedNode(new Topology.Node("localhost", serverPort)), topology);
         comm.listen(storage, topology);
     }
 
